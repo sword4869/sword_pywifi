@@ -2,8 +2,6 @@ import pywifi
 from pywifi import const
 import time
 
-from sympy import li
-
 class MyWifi(object):
     def __init__(self, interface_index=0):
         wifi = pywifi.PyWiFi()
