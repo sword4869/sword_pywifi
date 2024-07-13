@@ -90,7 +90,7 @@ class MyWifi(object):
         assert self.iface.status() in [const.IFACE_DISCONNECTED, const.IFACE_INACTIVE], f'断开失败, 网卡状态错误: {self.iface.status()}'
 
     # 扫描wifi
-    def wifiScan(self, wifiList_path=None, scan_time=10, threshold=-80):
+    def wifiScan(self, scan_time=10, threshold=-80):
         '''
         const.IFACE_SCANNING 就获取不了，所以不能像连接wifi那样判断状态
         需要sleep，再检测
@@ -104,9 +104,10 @@ class MyWifi(object):
 
         nums = len(wifi_infos)
         print("数量: %s"%(nums))
-        
+
+
+        # chinese_ssid 转化中文问题
         chinese_wifi_infos = []
-        print (f"ID | signal | {'BSSID':^18} | SSID")
         for index, wifi_info in enumerate(wifi_infos):
             # signal  # 信号强度(数值越大，信号越强)
             # ssid    # 名字，不支持中文，需要 ssid.encode('raw_unicode_escape','strict').decode()
@@ -114,10 +115,9 @@ class MyWifi(object):
             chinese_ssid = wifi_info.ssid.encode('raw_unicode_escape','strict').decode()
             if chinese_ssid == '':
                 continue
-                
-            print(f"{index:2} | {wifi_info.signal:^6} | {wifi_info.bssid} | {chinese_ssid}")
-            if wifi_info.signal >= threshold:
-                chinese_wifi_infos.append((wifi_info.signal, wifi_info.bssid, chinese_ssid, wifi_info.ssid))
+            chinese_wifi_infos.append((wifi_info.signal, wifi_info.bssid, chinese_ssid, wifi_info.ssid))
+
+
         
         # 去重
         chinese_wifi_infos = list(set(chinese_wifi_infos))
@@ -126,14 +126,11 @@ class MyWifi(object):
         # 排序：按照信号强度
         chinese_wifi_infos = sorted(chinese_wifi_infos, key=lambda s: s[0], reverse=True)
 
-        # 写入txt文本文件
-        wifi_names = []
-        for item in chinese_wifi_infos:
-            wifi_names.append(item[2] + '\n')
-
-        if wifiList_path is not None:
-            with open(wifiList_path, "w", encoding='utf-8') as wifiList:
-                # print(wifi_names)
-                wifiList.writelines(wifi_names)
-
-        return chinese_wifi_infos
+        # 显示和过滤
+        chinese_wifi_infos_filtered = []
+        print (f"ID | signal | {'BSSID':^18} | SSID")
+        for index, (signal, bssid, chinese_ssid, ssid) in enumerate(chinese_wifi_infos):
+            print(f"{index:2} | {signal:^6} | {bssid} | {chinese_ssid}")
+            if signal >= threshold:
+                chinese_wifi_infos_filtered.append((signal, bssid, chinese_ssid, ssid))
+        return chinese_wifi_infos_filtered

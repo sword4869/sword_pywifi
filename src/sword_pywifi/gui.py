@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import tkinter.filedialog
 import tkinter.messagebox
-from MyWifi import MyWifi
+from sword_pywifi.MyWifi import MyWifi
 from tqdm import tqdm
 
 class MY_GUI:
@@ -86,15 +86,16 @@ class MY_GUI:
     def scans_wifi_list(self):
         chinese_wifi_infos = self.wifi.wifiScan()
         for index, wifi_info in enumerate(chinese_wifi_infos):
+            signal, bssid, chinese_ssid, ssid = wifi_info
             self.wifi_tree.insert(
                 "",
                 "end",
                 values=(
                     index + 1,
-                    wifi_info.chinese_ssid,
-                    wifi_info.bssid,
-                    wifi_info.signal,
-                    wifi_info.ssid
+                    chinese_ssid,
+                    bssid,
+                    signal,
+                    ssid
                 ),
             )
         return chinese_wifi_infos
@@ -145,11 +146,11 @@ class MY_GUI:
         except KeyboardInterrupt: # Ctrl-C中止程序
             print("中止程序")
 
-def gui_start():
+def main():
     init_window = Tk()
     ui = MY_GUI(init_window)
     ui.set_init_window()
     init_window.mainloop()
 
-
-gui_start()
+if __name__ == "__main__":
+    main()
